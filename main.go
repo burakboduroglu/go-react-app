@@ -14,7 +14,7 @@ import (
 )
 
 type Todo struct {
-	Id        primitive.ObjectID `json:"_id" bson:"_id"`
+	Id        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Completed bool               `json:"completed"`
 	Body      string             `json:"body"`
 }
@@ -48,8 +48,8 @@ func main() {
 
 	app.Get("/api/todos", getTodos)
 	app.Post("/api/todos", createTodo)
-	//app.Patch("/api/todos/:id", updateTodo)
-	//app.Delete("/api/todos/:id", deleteTodo)
+	app.Patch("/api/todos/:id", updateTodo)
+	app.Delete("/api/todos/:id", deleteTodo)
 
 	Port := os.Getenv("PORT")
 	log.Fatal(app.Listen(":" + Port))
@@ -74,7 +74,6 @@ func getTodos(c *fiber.Ctx) error {
 	}
 	return c.JSON(todos)
 }
-
 func createTodo(c *fiber.Ctx) error {
 	todo := new(Todo)
 
@@ -95,6 +94,34 @@ func createTodo(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"msg": "success"})
 }
+func updateTodo(c *fiber.Ctx) error {
+	Id := c.Params("id")
 
-//func updateTodo(c *fiber.Ctx) error {}
-//func deleteTodo(c *fiber.Ctx) error {}
+	ObjectId, err := primitive.ObjectIDFromHex(Id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": "id is invalid"})
+	}
+	filter := bson.M{"_id": ObjectId}
+	update := bson.M{"$set": bson.M{"completed": true}}
+
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"msg": "find error"})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"success": true})
+}
+func deleteTodo(c *fiber.Ctx) error {
+	Id := c.Params("id")
+
+	ObjectId, err := primitive.ObjectIDFromHex(Id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": "id is invalid"})
+	}
+	filter := bson.M{"_id": ObjectId}
+	_, err = collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"msg": "find error"})
+	}
+	return c.Status(200).JSON(fiber.Map{"success": true})
+}

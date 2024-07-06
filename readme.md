@@ -19,4 +19,8 @@ This project is a full stack application that uses Go for the backend and React 
 - Real-time data fetching, caching, and updates
 - ChakraUI for styling
 
+## YouTube
+[Watch Project Video](https://youtu.be/Un2KtJCeNTE)
+
+## Thanks
 If you like this project, please give it a star 🌟.

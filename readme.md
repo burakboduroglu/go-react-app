@@ -26,6 +26,6 @@ This project is a full stack application that uses Go for the backend and React 
 If you like this project, please give it a star 🌟.
 
 ## .env
-- MONGODB_URI
-- PORT
+- `MONGODB_URI`
+- `PORT`
 If you want to try it, you should create a .env with above variables.
